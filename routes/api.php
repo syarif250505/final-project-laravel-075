@@ -4,6 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\SubscriptionController;
+
+//---API Resource untuk Subscriptions
+Route::apiResource('subscriptions', SubscriptionController::class);
 
 //---API Resource untuk Customers
 Route::apiResource('customers', CustomerController::class);
