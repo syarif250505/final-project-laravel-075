@@ -3,7 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\CustomerController;
 
+//---API Resource untuk Customers
+Route::apiResource('customers', CustomerController::class);
+
+//---API Resource untuk Services
 Route::apiResource("services", ServiceController::class);
 Route::patch("services/{service}/activate", [
     ServiceController::class,
@@ -14,6 +19,7 @@ Route::patch("services/{service}/deactivate", [
     "deactivate",
 ]);
 
+// Route untuk root API, bisa digunakan untuk health check atau welcome message
 Route::get('/', function () {
     return response()->json([
         'success' => true,
