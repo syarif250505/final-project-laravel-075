@@ -11,6 +11,8 @@ Route::apiResource('subscriptions', SubscriptionController::class);
 
 //---API Resource untuk Customers
 Route::apiResource('customers', CustomerController::class);
+Route::patch('customers/{customer}/activate', [CustomerController::class, 'activate']);
+Route::patch('customers/{customer}/deactivate', [CustomerController::class, 'deactivate']);
 
 //---API Resource untuk Services
 Route::apiResource("services", ServiceController::class);
