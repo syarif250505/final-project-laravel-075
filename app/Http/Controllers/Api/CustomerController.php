@@ -134,11 +134,34 @@ class CustomerController extends Controller
         return response()->json(['success' => true, 'message' => 'Deactivated']);
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
-        $customer = Customer::findOrFail($id);
+        $customer = Customer::query()->find($id);
+
+        if (!$customer) {
+            return response()->json([
+                "success" => false,
+                "message" => "Customer not found",
+                "errors" => [],
+            ], 404);
+        }
+
+        // LOGIKA BARU: Cek apakah customer memiliki data di tabel subscriptions
+        if ($customer->subscriptions()->exists()) {
+            return response()->json([
+                "success" => false,
+                "message" => "Gagal! Customer tidak bisa dihapus karena masih memiliki riwayat langganan (Subscription).",
+                "errors" => [],
+            ], 422); // 422 Unprocessable Entity
+        }
+
+        // Jika tidak punya subscription, hapus customer
         $customer->delete();
-        // Tambahkan respons sukses agar JavaScript tidak error
-        return response()->json(['success' => true, 'message' => 'Deleted']);
+
+        return response()->json([
+            "success" => true,
+            "message" => "Customer deleted successfully",
+            "data" => null,
+        ]);
     }
 }

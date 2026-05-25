@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\SubscriptionController;
 
 //---API Resource untuk Subscriptions
 Route::apiResource('subscriptions', SubscriptionController::class);
+Route::patch('subscriptions/{id}/status', [SubscriptionController::class, 'updateStatus']);
 
 //---API Resource untuk Customers
 Route::apiResource('customers', CustomerController::class);
