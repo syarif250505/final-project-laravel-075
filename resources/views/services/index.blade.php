@@ -34,9 +34,9 @@
 <div id="addServiceModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] flex items-center justify-center">
     <div class="bg-white rounded-2xl w-full max-w-xl p-10 relative shadow-2xl">
         <h2 class="text-3xl font-bold text-center mb-8 text-gray-900">Add Services</h2>
-
+        
         <form id="addServiceForm" onsubmit="submitService(event)">
-
+            
             <div class="mb-5">
                 <label class="block text-gray-900 font-semibold mb-2 text-lg">Service Name</label>
                 <input type="text" id="name" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white placeholder-gray-400" placeholder="Enter your name" required>
@@ -61,9 +61,7 @@
                         <option value="0">Inactive</option>
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
-                        <svg class="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                        </svg>
+                        <svg class="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                     </div>
                 </div>
             </div>
@@ -74,6 +72,53 @@
                 </button>
                 <button type="submit" class="px-6 py-3 bg-[#334155] text-white rounded-xl hover:bg-gray-800 font-medium transition-colors shadow-sm">
                     Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editServiceModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] flex items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-xl p-10 relative shadow-2xl">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-900">Edit Service</h2>
+        
+        <form id="editServiceForm" onsubmit="submitEditService(event)">
+            <input type="hidden" id="edit_id">
+            
+            <div class="mb-5">
+                <label class="block text-gray-900 font-semibold mb-2 text-lg">Service Name</label>
+                <input type="text" id="edit_name" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white placeholder-gray-400" required>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-gray-900 font-semibold mb-2 text-lg">Price</label>
+                <input type="number" id="edit_price" min="0" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white placeholder-gray-400" required>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-gray-900 font-semibold mb-2 text-lg">Description</label>
+                <textarea id="edit_description" rows="3" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white placeholder-gray-400"></textarea>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-gray-900 font-semibold mb-2 text-lg">Status</label>
+                <div class="relative">
+                    <select id="edit_status" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white text-gray-500 appearance-none" required>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                        <svg class="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-4">
+                <button type="button" onclick="closeEditModal()" class="px-6 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-3 bg-[#334155] text-white rounded-xl hover:bg-gray-800 font-medium transition-colors shadow-sm">
+                    Update
                 </button>
             </div>
         </form>
@@ -98,7 +143,6 @@
 
                 if (result.success && result.data.length > 0) {
                     result.data.forEach(service => {
-                        // 1. Cek status aktif atau tidak
                         const isActive = service.status == 1 || service.status == true || service.status == 'active';
 
                         const statusBadge = isActive ?
@@ -111,10 +155,8 @@
                             minimumFractionDigits: 2
                         }).format(service.price);
 
-                        // 2. Siapkan variabel untuk menampung tombol
                         let actionButtons = '';
 
-                        // 3. Logika Kondisi: Jika aktif, tampilkan Deactivate. Jika tidak, tampilkan Active.
                         if (isActive) {
                             actionButtons += `
                                 <button onclick="actionDeactivate(${service.id})" class="w-full flex items-center px-4 py-2 text-sm text-[#334155] hover:bg-gray-50 transition-colors">
@@ -135,7 +177,6 @@
                             `;
                         }
 
-                        // 4. Tambahkan tombol Edit dan Delete agar selalu muncul di bawahnya
                         actionButtons += `
                             <button onclick="actionEdit(${service.id})" class="w-full flex items-center px-4 py-2 text-sm text-[#334155] hover:bg-gray-50 transition-colors">
                                 <svg class="mr-3 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -175,7 +216,7 @@
             });
     }
 
-    // --- FUNGSI MODAL ---
+    // --- FUNGSI ADD MODAL ---
     function openModal() {
         document.getElementById('addServiceModal').classList.remove('hidden');
     }
@@ -185,13 +226,12 @@
         document.getElementById('addServiceForm').reset();
     }
 
-    // --- FUNGSI SUBMIT DATA ---
     function submitService(event) {
         event.preventDefault();
 
         const data = {
             name: document.getElementById('name').value,
-            price: parseInt(document.getElementById('price').value), // Pastikan menjadi integer
+            price: parseInt(document.getElementById('price').value), 
             description: document.getElementById('description').value,
             status: document.getElementById('status').value === '1' ? 1 : 0
         };
@@ -206,7 +246,7 @@
             })
             .then(response => response.json())
             .then(result => {
-                if (result.success || result.data) { // Cek format respon API kamu
+                if (result.success || result.data) { 
                     closeModal();
                     fetchServices();
                     alert('Success: Data service berhasil ditambahkan!');
@@ -246,21 +286,115 @@
         }
     });
 
-    // --- FUNGSI AKSI DUMMY ---
+   // --- FUNGSI AKSI ---
     function actionActivate(id) {
-        alert('Activate ID: ' + id);
+        fetch(`/api/services/${id}/activate`, {
+            method: 'PATCH',
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(result => {
+            if(result.success) {
+                fetchServices(); 
+            } else {
+                alert('Gagal mengaktifkan service.');
+            }
+        });
     }
 
     function actionDeactivate(id) {
-        alert('Deactivate ID: ' + id);
+        fetch(`/api/services/${id}/deactivate`, {
+            method: 'PATCH',
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(result => {
+            if(result.success) {
+                fetchServices(); 
+            } else {
+                alert('Gagal menonaktifkan service.');
+            }
+        });
+    }
+
+    // --- FUNGSI EDIT MODAL ---
+    function closeEditModal() {
+        document.getElementById('editServiceModal').classList.add('hidden');
+        document.getElementById('editServiceForm').reset();
     }
 
     function actionEdit(id) {
-        alert('Edit ID: ' + id);
+        fetch(`/api/services/${id}`)
+            .then(response => response.json())
+            .then(result => {
+                if(result.success) {
+                    const data = result.data;
+                    document.getElementById('edit_id').value = data.id;
+                    document.getElementById('edit_name').value = data.name;
+                    document.getElementById('edit_price').value = data.price;
+                    document.getElementById('edit_description').value = data.description || '';
+                    document.getElementById('edit_status').value = (data.status == 1 || data.status == true) ? '1' : '0';
+                    
+                    document.getElementById('editServiceModal').classList.remove('hidden');
+                } else {
+                    alert('Gagal mengambil data service');
+                }
+            });
     }
 
+    function submitEditService(event) {
+        event.preventDefault(); 
+
+        const id = document.getElementById('edit_id').value;
+        const data = {
+            name: document.getElementById('edit_name').value,
+            price: parseInt(document.getElementById('edit_price').value),
+            description: document.getElementById('edit_description').value,
+            status: document.getElementById('edit_status').value === '1' ? 1 : 0 
+        };
+
+        fetch(`/api/services/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if(result.success || result.data) {
+                closeEditModal();
+                fetchServices(); 
+                alert('Data berhasil diupdate!');
+            } else {
+                alert('Gagal mengupdate data.');
+            }
+        })
+        .catch(error => console.error('Error updating data:', error));
+    }
+
+    // --- FUNGSI DELETE ---
     function actionDelete(id) {
-        alert('Delete ID: ' + id);
+        if (confirm('Apakah Anda yakin ingin menghapus data service ini?')) {
+            fetch(`/api/services/${id}`, {
+                method: 'DELETE',
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if(result.success) {
+                    alert('Data berhasil dihapus!');
+                    fetchServices(); 
+                } else {
+                    alert('Gagal menghapus: ' + result.message); 
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghapus data.');
+            });
+        }
     }
 </script>
 @endpush
