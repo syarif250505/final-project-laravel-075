@@ -13,3 +13,7 @@ Route::get('/customers', function () {
 Route::get('/services', function () {
     return view('services.index');
 })->name('services.index');
+
+Route::get('/subscriptions', function () {
+    return view('subscriptions.index');
+})->name('subscriptions.index');

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('service_id')->constrained()->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date')->nullable();
-            $table->boolean('status')->default(true); // misal: active, inactive
+            $table->enum('status', ['Active', 'Trial', 'Isolir', 'Dismantle'])->default('Trial');
             $table->timestamps();
         });
     }

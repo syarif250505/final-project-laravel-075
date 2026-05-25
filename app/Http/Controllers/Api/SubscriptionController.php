@@ -32,7 +32,7 @@ class SubscriptionController extends Controller
             $query->where("status", $status === "active");
         }
 
-        $subscriptions = $query->latest()->get();
+        $subscriptions = $query->with(['customer', 'service'])->latest()->get();
 
         return response()->json([
             "success" => true,
@@ -48,7 +48,7 @@ class SubscriptionController extends Controller
             "service_id" => ["required", "integer"],
             "start_date" => ["required", "date"],
             "end_date" => ["nullable", "date", "after:start_date"],
-            "status" => ["nullable", "boolean"],
+            "status" => ["nullable", "string", "in:Active,Trial,Isolir,Dismantle"],
         ]);
 
         $data["status"] = $data["status"] ?? true;
@@ -98,7 +98,7 @@ class SubscriptionController extends Controller
             "service_id" => ["sometimes", "integer"],
             "start_date" => ["sometimes", "date"],
             "end_date" => ["sometimes", "date", "after:start_date"],
-            "status" => ["nullable", "boolean"],
+            "status" => ["nullable", "string", "in:Active,Trial,Isolir,Dismantle"],
         ]);
 
         $subscriptionData->update($data);
@@ -128,6 +128,27 @@ class SubscriptionController extends Controller
             "success" => true,
             "message" => "Subscription deleted successfully",
             "data" => null,
+        ]);
+    }
+
+    public function updateStatus(Request $request, int $id): JsonResponse
+    {
+        $subscription = Subscription::query()->find($id);
+
+        if (!$subscription) {
+            return response()->json([
+                "success" => false,
+                "message" => "Subscription not found"
+            ], 404);
+        }
+
+        $subscription->update([
+            "status" => $request->status
+        ]);
+
+        return response()->json([
+            "success" => true,
+            "message" => "Status updated successfully"
         ]);
     }
 }
